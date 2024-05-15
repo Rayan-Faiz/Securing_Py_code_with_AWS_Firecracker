@@ -23,33 +23,53 @@ Before installing Firecracker, ensure you have the following prerequisites insta
 - Linux kernel version 4.14 or later
 - KVM enabled in your kernel configuration
 - `curl` and `jq` packages installed (for downloading and configuring Firecracker)
+- Golang 1.11+
 
-### Installation Steps
+### Installation Steps To Firecracker and Firectl
 
-1. **Download Firecracker**:
+1. **Download Firecracker Binary**:
 
    ```bash
-   curl -LOJ https://github.com/firecracker-microvm/firecracker/releases/latest/download/firecracker
+   curl -LOJ https://github.com/firecracker-microvm/firecracker/releases/download/v0.13.0/firecracker-v0.13.0
+   mv firecracker-v0.13.0 firecracker
    chmod +x firecracker
    
-2. **Download the Firecracker Jailer**:
+2. **Copy to $PATH**:
 
    ```bash
-   curl -LOJ https://github.com/firecracker-microvm/firecracker/releases/latest/download/jailer
-   chmod +x jailer
+   sudo cp firecracker /usr/bin/
 
-3. **Move Firecracker and Jailer binaries to a directory in your PATH**:
+3. **Set read/write access to KVM**:
 
    ```bash
-   sudo mv firecracker jailer /usr/local/bin/
+   sudo setfacl -m u:${USER}:rw /dev/kvm
 
 4. **Verify Installation**:
 
    ```bash
-   firecracker --version
-   jailer --version
+   firecracker -V
 
-You should see the version numbers of Firecracker and Jailer printed to the console if the installation was successful.
+You should see the version numbers of Firecracker printed to the console if the installation was successful.
+
+5. **Build firectl binary**:
+
+Currently firectl doesn’t have any release yet, so we need build it using go
+      
+      ```bash
+    sudo yum install -y git
+    git clone https://github.com/firecracker-microvm/firectl
+    cd firectl
+    make
+
+6. **Copy binary to $PATH**:
+
+   ```bash
+   sudo cp firectl /usr/bin/
+
+7. **Check if firectl installed successfully**:
+
+   ```bash
+   firectl -h
 
 ## Running Python Programs on Firecracker MicroVM
 
@@ -72,12 +92,17 @@ To run Python programs on a Firecracker microVM, follow these steps:
    ```bash
    curl --unix-socket /tmp/firecracker.sock -i -X PUT 'http://localhost/drives/rootfs' -H 'Accept: application/json' -H 'Content-Type: application/json -d '{ "drive_id": "rootfs", "path_on_host": "<path_to_rootfs_image>", "is_root_device": true, "is_read_only": false }'
 
-5. **Start the MicroVM**:
+5. **Or Download them ALTERNATIVELY**:
 
    ```bash
-   curl --unix-socket /tmp/firecracker.sock -i -X PUT 'http://localhost/actions' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{ "action_type": "InstanceStart" }'
+   curl -fsSL -o /tmp/hello-vmlinux.bin https://s3.amazonaws.com/spec.ccfc.min/img/hello/kernel/hello-vmlinux.bincurl -fsSL -o /tmp/hello-rootfs.ext4 https://s3.amazonaws.com/spec.ccfc.min/img/hello/fsfiles/hello-rootfs.ext4
 
-6. **Connect to the MicroVM**:
+6. **Start the MicroVM**:
+
+   ```bash
+   firectl --kernel=/tmp/hello-vmlinux.bin --root-drive=/tmp/hello-rootfs.ext4 --kernel-opts="console=ttyS0 noapic reboot=k panic=1 pci=off nomodules rw"
+
+7. **Connect to the MicroVM**:
 
    ```bash
    ssh <microVM_IP_address>
