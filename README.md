@@ -97,12 +97,12 @@ To run Python programs on a Firecracker microVM, follow these steps:
    ```bash
    curl -fsSL -o /tmp/hello-vmlinux.bin https://s3.amazonaws.com/spec.ccfc.min/img/hello/kernel/hello-vmlinux.bincurl -fsSL -o /tmp/hello-rootfs.ext4 https://s3.amazonaws.com/spec.ccfc.min/img/hello/fsfiles/hello-rootfs.ext4
 
-6. **Start the MicroVM**:
+6. **Start the MicroVM with Firectl ALTERNATIVELY**:
 
    ```bash
    firectl --kernel=/tmp/hello-vmlinux.bin --root-drive=/tmp/hello-rootfs.ext4 --kernel-opts="console=ttyS0 noapic reboot=k panic=1 pci=off nomodules rw"
 
-7. **Connect to the MicroVM with Firectl ALTERNATIVELY**:
+7. **Connect to the MicroVM**:
 
    ```bash
    ssh <microVM_IP_address>
