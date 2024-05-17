@@ -102,7 +102,7 @@ To run Python programs on a Firecracker microVM, follow these steps:
    ```bash
    firectl --kernel=/tmp/hello-vmlinux.bin --root-drive=/tmp/hello-rootfs.ext4 --kernel-opts="console=ttyS0 noapic reboot=k panic=1 pci=off nomodules rw"
 
-7. **Connect to the MicroVM**:
+7. **Connect to the MicroVM with Firectl ALTERNATIVELY**:
 
    ```bash
    ssh <microVM_IP_address>
