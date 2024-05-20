@@ -71,38 +71,42 @@ Currently firectl doesn’t have any release yet, so we need build it using go
    ```bash
    firectl -h
 
-## Running Python Programs on Firecracker MicroVM
+## Running Programs on Firecracker MicroVM
 
 To run Python programs on a Firecracker microVM, follow these steps:
 
 1. **Create a Root Filesystem Image**: You'll need a root filesystem image containing a minimal Linux environment and Python installed. You can use tools like debootstrap or buildroot to create this image.
 
-2. **Start Firecracker with the RootFS Image**:
+   ```bash
+   curl -fsSL -o /tmp/hello-vmlinux.bin https://s3.amazonaws.com/spec.ccfc.min/img/hello/kernel/hello-vmlinux.bin
+   curl -fsSL -o /tmp/hello-rootfs.ext4 https://s3.amazonaws.com/spec.ccfc.min/img/hello/fsfiles/hello-rootfs.ext4
+
+3. **Start Firecracker with the RootFS Image**:
    
     ```bash
     ./firecracker --api-sock /tmp/firecracker.sock
 
-3. **Launch a MicroVM Instance**:
+4. **Launch a MicroVM Instance**:
 
    ```bash
    curl --unix-socket /tmp/firecracker.sock -i -X PUT 'http://localhost/machine-config' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{ "vcpu_count": 2, "mem_size_mib": 512 }'
 
-4. **Attach the RootFS Image**:
+5. **Attach the RootFS Image**:
 
    ```bash
    curl --unix-socket /tmp/firecracker.sock -i -X PUT 'http://localhost/drives/rootfs' -H 'Accept: application/json' -H 'Content-Type: application/json -d '{ "drive_id": "rootfs", "path_on_host": "<path_to_rootfs_image>", "is_root_device": true, "is_read_only": false }'
 
-5. **Or Download them ALTERNATIVELY**:
+6. **Or Download them ALTERNATIVELY**:
 
    ```bash
    curl -fsSL -o /tmp/hello-vmlinux.bin https://s3.amazonaws.com/spec.ccfc.min/img/hello/kernel/hello-vmlinux.bincurl -fsSL -o /tmp/hello-rootfs.ext4 https://s3.amazonaws.com/spec.ccfc.min/img/hello/fsfiles/hello-rootfs.ext4
 
-6. **Start the MicroVM with Firectl ALTERNATIVELY**:
+7. **Start the MicroVM with Firectl ALTERNATIVELY**:
 
    ```bash
    firectl --kernel=/tmp/hello-vmlinux.bin --root-drive=/tmp/hello-rootfs.ext4 --kernel-opts="console=ttyS0 noapic reboot=k panic=1 pci=off nomodules rw"
 
-7. **Connect to the MicroVM**:
+8. **Connect to the MicroVM**:
 
    ```bash
    ssh <microVM_IP_address>
