@@ -55,7 +55,6 @@ You should see the version numbers of Firecracker printed to the console if the 
 
 Currently firectl doesn’t have any release yet, so we need build it using go
       
-      ```bash
     sudo yum install -y git
     git clone https://github.com/firecracker-microvm/firectl
     cd firectl
@@ -110,19 +109,16 @@ To run Python programs on a Firecracker microVM, follow these steps:
 
 Create a tap interface
 
-    ```bash
-   sudo ip tuntap add tap0 mode tap
-   sudo ip addr add 172.20.0.1/24 dev tap0
-   sudo ip link set tap0 up
+    sudo ip tuntap add tap0 mode tap
+    sudo ip addr add 172.20.0.1/24 dev tap0
+    sudo ip link set tap0 up
 
 Set your main interface device. If you have different name check it with ifconfig command
 
-    ```bash
     DEVICE_NAME=eth0
 
 Provide iptables rules to enable packet forwarding
 
-    ```bash
     sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
     sudo iptables -t nat -A POSTROUTING -o $DEVICE_NAME -j MASQUERADE
     sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -130,16 +126,14 @@ Provide iptables rules to enable packet forwarding
 
 Get mac of the tap device
 
-    ```bash
     MAC="$(cat /sys/class/net/tap0/address)"
 
 Provide interface to the MicroVM when starting ( — tap-device)
 
-    ```bash
     firectl --kernel=/tmp/hello-vmlinux.bin --root-drive=/tmp/hello-rootfs.ext4 --kernel-opts="console=ttyS0 noapic reboot=k panic=1 pci=off nomodules rw" --tap-device=tap0/$MAC
 
 Setup inside guest vm
-    ```bash
+
     ifconfig eth0 up && ip addr add dev eth0 172.20.0.2/24
     ip route add default via 172.20.0.1 && echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
